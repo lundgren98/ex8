@@ -1,5 +1,6 @@
 from socket import socket
 
+
 class Client:
 
     def __init__(self, sock: socket,
@@ -26,7 +27,7 @@ class Client:
 
 def main():
     with socket() as s:
-        client = Client(s)
+        client = Client(s, port=50001)
         client.run()
 
 
