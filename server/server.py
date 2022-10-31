@@ -12,7 +12,10 @@ class Client:
         self.socket.sendall(message.encode())
 
     def receive(self) -> str | None:
-        buf = self.socket.recv(1024)
+        try:
+            buf = self.socket.recv(1024)
+        except ConnectionResetError:
+            return None
         if buf:
             return buf.decode()
         return None
@@ -71,12 +74,15 @@ class Server:
             self.broadcast = True
         return message
 
-    def run_commands(self, message: str) -> str:
-        words = message.split()
-        if len(words) < 3 or words[0] != 'COMMAND':
-            return message
-        message = ' '.join(words[2:])
-        for command in words[1]:
+    def run_commands(self, command_message: str) -> str:
+        words = command_message.split()
+        if len(words) < 3:
+            return command_message
+        first_word, commands, *message = words
+        if first_word != 'COMMAND':
+            return command_message
+        message = ' '.join(message)
+        for command in commands:
             message = self.run_command(command, message)
         return message
 
